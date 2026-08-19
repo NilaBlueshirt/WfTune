@@ -14,6 +14,16 @@ This repository contains tools, configuration templates, and deterministic
 synthetic fixtures. It intentionally contains **no real campaign data,
 scientific inputs, workflow outputs, credentials, or site configuration**.
 
+## Collection and trust boundary
+
+![WfTune deployment and trust boundary](docs/images/wftune-trust-boundary.png)
+
+WfTune separates controlled site actions, measured workflow demand, and
+out-of-band observation. Each role writes distinct evidence to an immutable run
+tree; validation and analysis then run offline without live Slurm access. This
+keeps monitoring traffic out of the benchmark identity's per-user RPC delta and
+makes incomplete evidence a hard analysis failure.
+
 ## What WfTune measures
 
 The primary measurements share one lifecycle across all supported treatments:
