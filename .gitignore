@@ -1,0 +1,33 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Filled site configuration may contain local identities and paths.
+*.env
+
+# Real collection and workflow-output roots belong outside this checkout.
+data/
+results/
+runs/
+artifacts/
+monitor-data/
+pipeline-runs/
+example-output/
+
+# Common per-run records, if a data root is accidentally created elsewhere.
+run.json
+trace.txt
+report.html
+sdiag_*.txt
+*.log
+*.out
+*.err
+
+# Generated analysis products are not source by default.
+fig_*.png
+fig_*.pdf
+audit*_runs.csv
+audit*_through_rep*.json
+table_results*.csv

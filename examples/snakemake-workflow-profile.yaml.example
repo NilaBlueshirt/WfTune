@@ -1,0 +1,5 @@
+# Optional workflow-specific overrides.  Copy, fill, and point
+# WMSbench_SNAKEMAKE_WORKFLOW_PROFILE at the resulting YAML file.  Rule names
+# and values remain placeholders until the real workflow is selected.
+set-resources: {}
+set-threads: {}

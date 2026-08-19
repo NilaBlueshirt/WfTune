@@ -1,0 +1,5 @@
+# Analysis-only environment; the controller/collector use Python's standard
+# library.  Freeze these versions in the campaign software manifest.
+numpy==2.0.2
+pandas==2.2.3
+matplotlib==3.9.4

@@ -1,0 +1,7 @@
+# Copy to a central, immutable YAML file and fill every placeholder.  The
+# launcher passes this file with --profile.  Keep array and Slurm-placement
+# settings out of it; the adapters and pipeline environment own those values.
+latency-wait: FILL_IN_SECONDS
+max-status-checks-per-second: FILL_IN_RATE
+slurm-init-seconds-before-status-checks: FILL_IN_SECONDS
+slurm-keep-successful-logs: true
