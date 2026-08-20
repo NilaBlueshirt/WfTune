@@ -1,4 +1,7 @@
 # WfTune
+<p align="center">
+  <img src="logo.png" alt="MyProject logo" width="200">
+</p>
 
 **Portable benchmarking and tuning guidance for scientific workflows on HPC.**
 
