@@ -3,9 +3,9 @@
   <img src="logo.png" alt="MyProject logo" width="200">
 </p>
 
-**Portable benchmarking and tuning guidance for scientific workflows on HPC.**
+<div align="center"> Measure · Compare · Tune </div> 
 
-Measure. Compare. Tune.
+**Portable benchmarking and tuning guidance for scientific workflows on HPC.**
 
 WfTune measures how a workflow deployment affects both user-visible completion
 time and the Slurm control plane. It provides a clean-start collection
