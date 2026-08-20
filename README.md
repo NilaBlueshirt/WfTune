@@ -1,9 +1,8 @@
 # WfTune
 <p align="center">
   <img src="logo.png" alt="MyProject logo" width="200">
-</p>
-
 <div align="center"> Measure · Compare · Tune </div> 
+</p>
 
 **Portable benchmarking and tuning guidance for scientific workflows on HPC.**
 
