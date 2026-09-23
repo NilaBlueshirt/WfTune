@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900"
+     viewBox="0 0 1440 900" role="img" aria-labelledby="title description"
+     font-family="Arial, Helvetica, sans-serif">
+  <title id="title">WfTune collection and trust boundary</title>
+  <desc id="description">
+    Three roles collect separate evidence in a live Slurm environment.
+    The privileged administrator controls deployment and Fairshare state.
+    The benchmark user runs the workflow and generates measured RPCs.
+    The privileged Slurm observer collects controller state out of band,
+    keeping observer RPCs separate from the benchmark user's RPCs.
+    Complete, hashed records form an immutable run tree. A read-only transfer
+    crosses the live/offline trust boundary. Unprivileged offline analysis
+    validates, summarizes and plots the evidence, rejecting incomplete runs
+    without requiring live Slurm access.
+  </desc>
+
+  <rect width="1440" height="900" fill="#ffffff"/>
+
+  <text x="48" y="48" fill="#475569" font-size="18" font-weight="700"
+        letter-spacing="1.5">LIVE SLURM ENVIRONMENT</text>
+
+  <g id="administrator">
+    <rect x="48" y="88" width="416" height="240" rx="12"
+          fill="#fffbf2" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="72" y="124" fill="#92400e" font-size="16" font-weight="700"
+          letter-spacing="1">PRIVILEGED</text>
+    <text x="72" y="164" fill="#0f172a" font-size="28"
+          font-weight="700">Administrator</text>
+    <g fill="#334155" font-size="22">
+      <text x="72" y="214">Freeze the deployment</text>
+      <text x="72" y="254">Verify site policy</text>
+      <text x="72" y="294">Reset and record Fairshare usage</text>
+    </g>
+  </g>
+
+  <g id="benchmark-user">
+    <rect x="512" y="88" width="416" height="240" rx="12"
+          fill="#f4f8ff" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="536" y="124" fill="#1d4ed8" font-size="16" font-weight="700"
+          letter-spacing="1">MEASURED</text>
+    <text x="536" y="164" fill="#0f172a" font-size="28"
+          font-weight="700">Benchmark user</text>
+    <g fill="#334155" font-size="22">
+      <text x="536" y="214">Request allocations</text>
+      <text x="536" y="254">Run the workflow</text>
+      <text x="536" y="294">Generate attributable RPCs</text>
+    </g>
+  </g>
+
+  <g id="slurm-observer">
+    <rect x="976" y="88" width="416" height="240" rx="12"
+          fill="#faf7ff" stroke="#8b5cf6" stroke-width="1.5"/>
+    <text x="1000" y="124" fill="#6d28d9" font-size="16" font-weight="700"
+          letter-spacing="1">PRIVILEGED / OUT OF BAND</text>
+    <text x="1000" y="164" fill="#0f172a" font-size="28"
+          font-weight="700">Slurm observer</text>
+    <g fill="#334155" font-size="22">
+      <text x="1000" y="214">Capture sdiag boundaries</text>
+      <text x="1000" y="254">Sample controller state</text>
+      <text x="1000" y="294">Keep observer RPCs separate</text>
+    </g>
+  </g>
+
+  <g id="collection-arrows" fill="none" stroke-width="2"
+     stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 256 344 V 422 M 250 414 L 256 422 L 262 414" stroke="#b45309"/>
+    <path d="M 720 344 V 422 M 714 414 L 720 422 L 726 414" stroke="#2563eb"/>
+    <path d="M 1184 344 V 422 M 1178 414 L 1184 422 L 1190 414" stroke="#7c3aed"/>
+  </g>
+  <g id="evidence-labels" font-size="20">
+    <text x="276" y="390" fill="#92400e">Provenance</text>
+    <text x="740" y="390" fill="#1d4ed8">Trace + report</text>
+    <text x="1204" y="390" fill="#6d28d9">sdiag + events</text>
+  </g>
+
+  <g id="run-tree">
+    <rect x="48" y="438" width="1344" height="124" rx="12"
+          fill="#f0fdfa" stroke="#0d9488" stroke-width="1.5"/>
+    <text x="72" y="484" fill="#0f172a" font-size="28"
+          font-weight="700">Immutable run tree</text>
+    <text x="1368" y="484" fill="#0f766e" font-size="20"
+          text-anchor="end">Complete, hashed evidence</text>
+    <text x="72" y="530" fill="#334155" font-size="22">Manifests, run.json, events, traces, reports and controller samples</text>
+  </g>
+
+  <g id="trust-boundary">
+    <text x="48" y="628" fill="#475569" font-size="18" font-weight="700"
+          letter-spacing="1.5">LIVE / OFFLINE TRUST BOUNDARY</text>
+    <path d="M 48 650 H 692 M 748 650 H 1392" fill="none"
+          stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="7 7"/>
+  </g>
+
+  <g id="read-only-transfer">
+    <path d="M 720 578 V 720 M 714 712 L 720 720 L 726 712"
+          fill="none" stroke="#0f766e" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="744" y="696" fill="#0f766e" font-size="20">Read-only transfer</text>
+  </g>
+
+  <g id="offline-analysis">
+    <rect x="48" y="736" width="1344" height="124" rx="12"
+          fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+    <text x="72" y="782" fill="#0f172a" font-size="28"
+          font-weight="700">Offline analysis</text>
+    <text x="1368" y="782" fill="#166534" font-size="16" font-weight="700"
+          letter-spacing="1" text-anchor="end">UNPRIVILEGED / NO LIVE SLURM ACCESS</text>
+    <text x="72" y="828" fill="#334155" font-size="22">Validate, summarize and plot. Reject incomplete evidence.</text>
+  </g>
+</svg>
