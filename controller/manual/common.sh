@@ -71,6 +71,9 @@ wftune_manual_load() {
         echo "the inherited live-endpoint manual runner supports Nextflow only" >&2
         exit 2
     }
+    # shellcheck source=controller/wftune_version.sh
+    source "$WMSbench_HARNESS_ROOT/controller/wftune_version.sh"
+    wftune_read_version "$WMSbench_HARNESS_ROOT" || exit 2
     [[ $WMSbench_VALIDATION_COMMAND == /* && -f $WMSbench_VALIDATION_COMMAND \
             && -x $WMSbench_VALIDATION_COMMAND && ! -L $WMSbench_VALIDATION_COMMAND ]] || {
         echo "WMSbench_VALIDATION_COMMAND must be an absolute executable file" >&2

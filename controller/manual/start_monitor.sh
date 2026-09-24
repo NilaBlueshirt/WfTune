@@ -58,6 +58,8 @@ printf '%s\n' "pid=$$" "mode=manual" "venue=$VENUE" "rep=$REP" \
     "backend=$BACKEND" "run_dir=$RUN_DIR" "host=$(hostname)" \
     "started_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >"$LOCK_DIR/owner.env"
 
+wftune_warn_version_drift python3 "$WMSbench_MONITOR_ROOT/$VENUE" "$WFTUNE_VERSION"
+
 install -d -o root -g "$BENCH_GROUP" -m 0750 \
     "$WMSbench_MONITOR_ROOT/$VENUE" \
     "$WMSbench_MONITOR_ROOT/$VENUE/rep$REP" "$RUN_DIR"
@@ -100,6 +102,7 @@ chmod 0550 "$RUN_DIR/provenance/validator"
 printf '%s\n' \
     'schema_version=1' \
     'run_mode=manual' \
+    "wftune_version=$WFTUNE_VERSION" \
     "venue=$VENUE" \
     "replicate=$REP" \
     "backend=$BACKEND" \

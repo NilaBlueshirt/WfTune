@@ -61,6 +61,9 @@ case "$WMSbench_WMS" in
     nextflow|snakemake) ;;
     *) echo "WMSbench_WMS must be nextflow or snakemake" >&2; exit 2 ;;
 esac
+# shellcheck source=controller/wftune_version.sh
+source "$WMSbench_HARNESS_ROOT/controller/wftune_version.sh"
+wftune_read_version "$WMSbench_HARNESS_ROOT" || exit 2
 [[ $WMSbench_VALIDATION_COMMAND == /* && -f $WMSbench_VALIDATION_COMMAND \
         && -x $WMSbench_VALIDATION_COMMAND && ! -L $WMSbench_VALIDATION_COMMAND ]] || {
     echo "WMSbench_VALIDATION_COMMAND must be an absolute executable file" >&2
@@ -265,6 +268,9 @@ trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
+wftune_warn_version_drift "$WMSbench_PYTHON" "$WMSbench_MONITOR_ROOT/$VENUE" \
+    "$WFTUNE_VERSION"
+
 BENCH_GROUP=$(id -gn "$WMSbench_BENCH_USER")
 install -d -o root -g "$BENCH_GROUP" -m 0750 \
     "$WMSbench_MONITOR_ROOT/$VENUE" \
@@ -298,6 +304,7 @@ chmod 0550 "$RUN_DIR/provenance/validator"
 printf '%s\n' \
     'schema_version=1' \
     'run_mode=automated' \
+    "wftune_version=$WFTUNE_VERSION" \
     "wms=$WMSbench_WMS" \
     "venue=$VENUE" \
     "replicate=$REP" \

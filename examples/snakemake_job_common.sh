@@ -398,10 +398,16 @@ SNAKEMAKE_EXECUTOR=${!EXECUTOR_VARIABLE:-}
     echo "$EXECUTOR_VARIABLE contains an unsafe executor name" >&2
     exit 2
 }
+# Record the release this node sees, so the collector can refuse a run whose
+# compute-side harness copy differs from the controller's.
+# shellcheck source=controller/wftune_version.sh
+source "$WMSbench_HARNESS_ROOT/controller/wftune_version.sh"
+wftune_read_version "$WMSbench_HARNESS_ROOT" || exit 2
 
 atomic_write "$WMSbench_HANDOFF_DIR/pipeline_contract.env" \
     'schema_version=1' \
     'wms=snakemake' \
+    "wftune_version=$WFTUNE_VERSION" \
     "pipeline=$WMSbench_PIPELINE" \
     "pipeline_revision=$WMSbench_PIPELINE_REVISION" \
     "nf_profile=snakemake:$WMSbench_SNAKEMAKE_PROFILE" \

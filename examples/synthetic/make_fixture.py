@@ -1,13 +1,23 @@
 #!/usr/bin/env python3
 """Synthesize a WfTune monitor tree so the analysis path can be smoke-tested
 before real data exists. Usage: make_fixture.py OUT_ROOT [--reps N] [--venue V]
+[--wftune-version [REP=]VERSION]
 """
 import argparse
 import hashlib
 import json
 import random
+import re
 from pathlib import Path
 
+VERSION_FILE = Path(__file__).resolve().parents[2] / "VERSION"
+# The rule controller/collect_run.py applies to a recorded version.
+WFTUNE_VERSION_RE = re.compile(
+    r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)"
+    r"(-(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)"
+    r"(\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?$"
+)
+UNRECORDED = "unrecorded"
 BACKENDS = ["native", "jobarray", "hyperqueue", "flux", "local"]
 BENCH = "benchuser"
 INTERVAL = 300
@@ -108,7 +118,36 @@ def write_trace(path, backend, t0, start, endpoint, rng):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def build_run(root, venue, rep, backend, order, cursor, rng, wms):
+def replicate_versions(parser, values, reps):
+    """Map each replicate to the WfTune version its runs record, or None."""
+    try:
+        default = VERSION_FILE.read_text(encoding="utf-8").rstrip("\n")
+    except OSError as error:
+        parser.error(f"cannot read {VERSION_FILE}: {error}")
+    if not WFTUNE_VERSION_RE.fullmatch(default):
+        parser.error(f"{VERSION_FILE} does not hold a SemVer version")
+    overrides = {}
+    for value in values:
+        rep_text, separator, version = value.partition("=")
+        if not separator:
+            rep_text, version = None, rep_text
+        if version != UNRECORDED and not WFTUNE_VERSION_RE.fullmatch(version):
+            parser.error(
+                f"--wftune-version {value!r}: expected SemVer or {UNRECORDED!r}"
+            )
+        recorded = None if version == UNRECORDED else version
+        if rep_text is None:
+            default = recorded
+        elif re.fullmatch(r"[1-9][0-9]*", rep_text) and int(rep_text) <= reps:
+            overrides[int(rep_text)] = recorded
+        else:
+            parser.error(
+                f"--wftune-version {value!r}: replicate must be 1..{reps}"
+            )
+    return {rep: overrides.get(rep, default) for rep in range(1, reps + 1)}
+
+
+def build_run(root, venue, rep, backend, order, cursor, rng, wms, wftune_version):
     run_dir = root / venue / f"rep{rep}" / backend
     (run_dir / "sdiag" / "periodic").mkdir(parents=True, exist_ok=True)
     (run_dir / "handoff").mkdir(parents=True, exist_ok=True)
@@ -287,6 +326,8 @@ def build_run(root, venue, rep, backend, order, cursor, rng, wms):
             "included_in_endpoint_walltime": False,
         },
     }
+    if wftune_version is not None:
+        record["wftune"] = {"version": wftune_version}
     (run_dir / "run.json").write_text(
         json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return monitor_end + 600
@@ -300,7 +341,16 @@ def main():
     parser.add_argument(
         "--wms", choices=("nextflow", "snakemake"), default="nextflow"
     )
+    parser.add_argument(
+        "--wftune-version", action="append", default=[],
+        metavar="[REP=]VERSION",
+        help="WfTune version the runs record: a bare value applies to every "
+             "replicate and REP=VERSION to one; 'unrecorded' omits it, as a "
+             "run from before version recording would (default: the "
+             "checkout's VERSION)",
+    )
     args = parser.parse_args()
+    versions = replicate_versions(parser, args.wftune_version, args.reps)
     venues = args.venue or ["reference", "shared"]
     rng = random.Random(20260805)
     for venue in venues:
@@ -310,11 +360,14 @@ def main():
             for position, backend in enumerate(order, 1):
                 cursor = build_run(
                     args.out_root, venue, rep, backend, position, cursor, rng,
-                    args.wms,
+                    args.wms, versions[rep],
                 )
+    recorded = ", ".join(
+        f"rep{rep}={version or UNRECORDED}" for rep, version in versions.items()
+    )
     print(
         f"wrote {args.wms} fixture under {args.out_root} "
-        f"for {venues} through rep{args.reps}"
+        f"for {venues} through rep{args.reps} (WfTune {recorded})"
     )
 
 

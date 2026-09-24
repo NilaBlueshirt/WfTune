@@ -57,6 +57,12 @@ def arguments():
         help="explicitly allow backend_config_sha256 drift for the named "
              "comma-separated backends; all other treatment checks remain strict",
     )
+    parser.add_argument(
+        "--allow-version-drift", action="store_true",
+        help="explicitly admit runs recorded under different WfTune versions, "
+             "including runs with no recorded version; the strict primary "
+             "audit remains false",
+    )
     return parser.parse_args()
 
 
@@ -71,7 +77,8 @@ def write_json(path: Path, value: dict) -> None:
 
 def write_runs_csv(path: Path, rows: list[dict]) -> None:
     fields = [
-        "venue", "replicate", "backend", "run_dir", "primary_valid",
+        "venue", "replicate", "backend", "run_dir", "wftune_version",
+        "primary_valid",
         "analysis_admitted", "ordinary_censored_substitution",
         "global_context_valid", "status", "censored", "pipeline_exit_code",
         "validation_exit_code", "t0_epoch", "endpoint_latest_complete_epoch",
@@ -144,6 +151,7 @@ def main() -> int:
                 args.monitor_root, args.through_rep, venues=venues,
                 backends=backends, allow_censored_hq=True,
                 allow_backend_config_drift=allowed_backend_config_drift,
+                allow_version_drift=args.allow_version_drift,
             )
         except CampaignError as error:
             print(f"audit refused: {error}", file=sys.stderr)
@@ -191,6 +199,9 @@ def main() -> int:
                             audit_row["validation_exit_code"] = validation.get(
                                 "exit_code", ""
                             )
+                        wftune = raw.get("wftune")
+                        if isinstance(wftune, dict):
+                            audit_row["wftune_version"] = wftune.get("version", "")
                     if not raw:
                         audit_row.update(read_status_fallback(run_dir))
                     primary_errors.append(str(error))
@@ -218,6 +229,7 @@ def main() -> int:
                 args.monitor_root, args.through_rep, venues=venues,
                 backends=backends,
                 allow_backend_config_drift=allowed_backend_config_drift,
+                allow_version_drift=args.allow_version_drift,
             )
         except CampaignError as error:
             sequence_error = str(error)
@@ -244,6 +256,13 @@ def main() -> int:
                     "backend_config_sha256_values": observed_hashes,
                 })
     backend_config_drift_override_used = bool(backend_config_drift_overrides)
+    admitted_versions = sorted({
+        str(row.get("wftune_version") or "")
+        for row in rows if row.get("analysis_admitted")
+    })
+    version_drift_override_used = (
+        args.allow_version_drift and len(admitted_versions) > 1
+    )
     report = {
         "schema_version": "wftune.campaign-audit.v1",
         "created_utc": datetime.now(timezone.utc).isoformat(),
@@ -270,6 +289,7 @@ def main() -> int:
             not primary_errors
             and not has_provisional
             and not backend_config_drift_override_used
+            and not version_drift_override_used
         ),
         "provisional_analysis_admission_pass": not bool(primary_errors),
         "secondary_global_context_pass": not bool(context_errors),
@@ -280,11 +300,21 @@ def main() -> int:
             backend_config_drift_override_used
         ),
         "backend_config_drift_overrides": backend_config_drift_overrides,
+        "allow_version_drift": args.allow_version_drift,
+        "version_drift_override_used": version_drift_override_used,
+        "observed_wftune_versions": [
+            version for version in admitted_versions if version
+        ],
+        "unrecorded_wftune_version_count": sum(
+            bool(row.get("analysis_admitted")) and not row.get("wftune_version")
+            for row in rows
+        ),
         "all_evidence_pass": (
             not primary_errors
             and not context_errors
             and not has_provisional
             and not backend_config_drift_override_used
+            and not version_drift_override_used
         ),
         "pass": (
             not primary_errors
@@ -313,7 +343,14 @@ def main() -> int:
                 "analysis admission passed with explicit backend config-drift "
                 f"override for {overridden}; strict primary audit remains false"
             )
-        if not has_provisional and not backend_config_drift_override_used:
+        if version_drift_override_used:
+            observed = ", ".join(version or "unrecorded" for version in admitted_versions)
+            print(
+                "analysis admission passed with explicit WfTune version-drift "
+                f"override ({observed}); strict primary audit remains false"
+            )
+        if not has_provisional and not backend_config_drift_override_used \
+                and not version_drift_override_used:
             print(
                 f"primary audit passed: {expected_count} runs through replicate "
                 f"{args.through_rep}"

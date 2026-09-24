@@ -80,6 +80,18 @@ if [[ -r $PLACEMENT_HELPER && -n ${WMSbench_PARTITION:-} \
 else
     bad "controller/backend_placement.sh or its common placement inputs are unavailable"
 fi
+VERSION_HELPER=${WMSbench_HARNESS_ROOT:-/missing}/controller/wftune_version.sh
+if [[ -r $VERSION_HELPER ]]; then
+    # shellcheck source=controller/wftune_version.sh
+    source "$VERSION_HELPER"
+    if wftune_read_version "$WMSbench_HARNESS_ROOT"; then
+        ok "harness VERSION is $WFTUNE_VERSION"
+    else
+        bad "harness VERSION is not a SemVer release string"
+    fi
+else
+    bad "controller/wftune_version.sh is unavailable"
+fi
 
 for command in runuser sbatch scancel sdiag squeue sshare sacctmgr scontrol sha256sum timeout; do
     command -v "$command" >/dev/null 2>&1 && ok "$command is available" || bad "$command is missing"
@@ -238,6 +250,20 @@ if [[ -d ${WMSbench_HARNESS_ROOT:-/missing} ]]; then
             bad "unsafe mutable/symlinked harness entry: $unsafe"
         fi
     done
+    # VERSION sits at the harness root, outside the subtrees walked above, and
+    # every trial records it, so it needs its own protection check.
+    version_file=$WMSbench_HARNESS_ROOT/VERSION
+    if [[ -f $version_file && ! -L $version_file ]]; then
+        owner=$(stat -c '%u' "$version_file")
+        mode=$(stat -c '%a' "$version_file")
+        if [[ $owner == 0 ]] && (( (8#$mode & 0022) == 0 )); then
+            ok "harness VERSION is root-owned and non-writable"
+        else
+            bad "harness VERSION is mutable: $version_file"
+        fi
+    else
+        bad "harness VERSION is missing, not a regular file, or a symlink: $version_file"
+    fi
 fi
 if [[ -d ${WMSbench_PIPELINE_ROOT:-/missing} ]] \
         && [[ -n $BENCH_USER ]] \
@@ -271,6 +297,16 @@ if [[ -f $COMMON_HELPER ]] && [[ -n $BENCH_USER ]] \
 else
     bad "benchmark user cannot read $COMMON_HELPER"
 fi
+# The batch job reads the version itself so the collector can compare it with
+# the controller's; both files must be readable from the benchmark identity.
+for shared in VERSION controller/wftune_version.sh; do
+    if [[ -n $BENCH_USER ]] && runuser -u "$BENCH_USER" -- \
+            test -r "${WMSbench_HARNESS_ROOT:-/missing}/$shared"; then
+        ok "benchmark user can read the harness $shared"
+    else
+        bad "benchmark user cannot read ${WMSbench_HARNESS_ROOT:-/missing}/$shared"
+    fi
+done
 for backend in "${!PREFLIGHT_SEEN[@]}"; do
     name="WMSbench_SBATCH_${backend^^}"
     value=${!name:-/missing}

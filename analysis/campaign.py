@@ -37,6 +37,15 @@ import pandas as pd
 SCHEMA = "wftune.controller-run.v1"
 PROVISIONAL_CENSOR_SCHEMA = "wftune.provisional-censor.v1"
 PROVISIONAL_CENSOR_FILE = "provisional-censor.env"
+# One SemVer 2.0.0 string without build metadata, as controller/collect_run.py
+# records it.  A run collected before version recording carries no ``wftune``
+# object; its row reports an empty version, which the campaign check treats as
+# one more distinct value rather than as a wildcard.
+WFTUNE_VERSION_RE = re.compile(
+    r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)"
+    r"(-(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)"
+    r"(\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?$"
+)
 # Historical labels remain first when they are present, but WfTune discovers
 # arbitrary cluster labels from the monitoring root for new campaigns.
 VENUE_ORDER = ["dev", "phoenix"]
@@ -649,6 +658,14 @@ def analyze_run(run_dir: Path) -> dict:
         raise CampaignError(f"{source}: cluster and both user identities are required")
     if benchmark_user == observer_user:
         raise CampaignError(f"{source}: root observer must differ from benchmark user")
+    wftune = record.get("wftune")
+    if wftune is None:
+        wftune_version = ""
+    else:
+        wftune_version = wftune.get("version") if isinstance(wftune, dict) else None
+        if not isinstance(wftune_version, str) \
+                or not WFTUNE_VERSION_RE.fullmatch(wftune_version):
+            raise CampaignError(f"{source}: wftune.version must be a SemVer string")
 
     workload = record["workload"]
     workload_hash_fields = (
@@ -902,6 +919,7 @@ def analyze_run(run_dir: Path) -> dict:
         "order_in_replicate": order,
         "run_dir": str(run.run_dir),
         "run_mode": run_mode,
+        "wftune_version": wftune_version,
         "status": status,
         "censored": False,
         "censor_reason": "",
@@ -1084,6 +1102,14 @@ def analyze_provisional_censored_hq(run_dir: Path, baseline: dict) -> dict:
             raise CampaignError(f"{source}: provisional run identity mismatch")
     if started.get("main_job_id") != manifest["main_job_id"]:
         raise CampaignError(f"{manifest_path}: main job ID differs from handoff")
+    # Without run.json, apply the collector's own rule to the raw handoffs.
+    wftune_version = trial.get("wftune_version", "").strip()
+    if wftune_version != workload.get("wftune_version", "").strip():
+        raise CampaignError(
+            f"{run_dir}: controller and in-job WfTune versions differ"
+        )
+    if wftune_version and not WFTUNE_VERSION_RE.fullmatch(wftune_version):
+        raise CampaignError(f"{run_dir / 'trial.env'}: wftune_version is not SemVer")
     if finished is not None:
         identity = (
             finished.get("venue"),
@@ -1213,6 +1239,7 @@ def analyze_provisional_censored_hq(run_dir: Path, baseline: dict) -> dict:
         ),
         "run_dir": str(run_dir),
         "run_mode": "operator_censored",
+        "wftune_version": wftune_version,
         "status": "provisional_censored_substitution",
         "censored": True,
         "censor_reason": manifest["reason"],
@@ -1369,6 +1396,12 @@ def add_selection_arguments(parser) -> None:
         help="explicitly allow backend_config_sha256 drift for the named "
              "comma-separated backends; all other treatment checks remain strict",
     )
+    parser.add_argument(
+        "--allow-version-drift", action="store_true",
+        help="explicitly admit runs recorded under different WfTune versions, "
+             "including runs with no recorded version; all other checks "
+             "remain strict",
+    )
 
 
 def resolve_backends(values=None) -> list[str]:
@@ -1473,7 +1506,8 @@ def discover_run_dirs(root: Path, venues: Iterable[str], through_rep: int,
 
 def validate_campaign(root: Path, through_rep: int, venues=None,
                       backends=None, allow_censored_hq: bool = False,
-                      allow_backend_config_drift=None) -> list[dict]:
+                      allow_backend_config_drift=None,
+                      allow_version_drift: bool = False) -> list[dict]:
     """Validate complete non-overlapping blocks through a positive index."""
     if through_rep < 1:
         raise CampaignError("through_rep must be positive")
@@ -1566,6 +1600,12 @@ def validate_campaign(root: Path, through_rep: int, venues=None,
             for position, row in enumerate(replicate_rows, 1):
                 row["order_in_replicate"] = position
 
+    versions = {row["wftune_version"] for row in rows}
+    if len(versions) > 1 and not allow_version_drift:
+        raise CampaignError(
+            "WfTune version differs across runs: "
+            + ", ".join(sorted(version or "unrecorded" for version in versions))
+        )
     workload_fields = (
         "pipeline", "container_digest", "nf_profile", "pipeline_revision",
         "validation_sha256", "release_settle_s",

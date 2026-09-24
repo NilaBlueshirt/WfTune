@@ -74,13 +74,15 @@ def finite_statistic(series, metric: str, run_dir: str, statistic: str) -> float
 
 def collect(root: Path, venue: str, through_rep: int,
             backends: list[str], *, allow_censored_hq: bool = False,
-            allow_backend_config_drift=None) -> list[dict]:
+            allow_backend_config_drift=None,
+            allow_version_drift: bool = False) -> list[dict]:
     campaign = validate_campaign(root, through_rep=through_rep, venues=[venue],
                                  backends=backends,
                                  allow_censored_hq=allow_censored_hq,
                                  allow_backend_config_drift=(
                                      allow_backend_config_drift
-                                 ))
+                                 ),
+                                 allow_version_drift=allow_version_drift)
     rows = []
     for run in (row for row in campaign if row["venue"] == venue):
         samples = load_periodic_sdiag_for_row(run)
@@ -224,6 +226,7 @@ def main() -> int:
             args.monitor_root, venue, args.through_rep, backends,
             allow_censored_hq=args.allow_censored_hq,
             allow_backend_config_drift=args.allow_backend_config_drift,
+            allow_version_drift=args.allow_version_drift,
         )
         render(args.out, rows, args.through_rep, backends)
     except CampaignError as error:

@@ -23,6 +23,13 @@ from pathlib import Path
 
 
 SCHEMA = "wftune.controller-run.v1"
+# One SemVer 2.0.0 string without build metadata, the rule that
+# controller/wftune_version.sh applies where the version is read.
+WFTUNE_VERSION_RE = re.compile(
+    r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)"
+    r"(-(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)"
+    r"(\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?$"
+)
 BACKENDS = ["native", "jobarray", "hyperqueue", "flux", "local"]
 RUN_MODES = {"automated", "manual"}
 DATA_SINCE_RE = re.compile(r"^\s*Data since\s+(.+?)\s*$", re.MULTILINE)
@@ -205,6 +212,29 @@ def endpoint_task_count(
     return len(distinct), endpoint_process
 
 
+def wftune_identity(trial: dict, workload: dict) -> dict | None:
+    """Return the run's WfTune identity, or None for a pre-versioning trial.
+
+    The controller records the version it read at trial start and the batch
+    job records the version it read on the compute node.  A trial from before
+    version recording has neither and stays unrecorded, so re-finalizing it
+    reproduces its original record.  A value on only one side, or two
+    different values, means the two sides did not run the same release.
+    """
+    controller = pick(trial, "wftune_version", required=False)
+    in_job = pick(workload, "wftune_version", required=False)
+    if not controller and not in_job:
+        return None
+    if controller != in_job:
+        raise CollectionError(
+            "controller and in-job WfTune versions differ: "
+            f"{controller or 'unrecorded'} vs {in_job or 'unrecorded'}"
+        )
+    if not WFTUNE_VERSION_RE.fullmatch(controller):
+        raise CollectionError(f"WfTune version {controller!r} is not SemVer")
+    return {"version": controller}
+
+
 def main() -> int:
     if len(sys.argv) != 2:
         print("usage: collect_run.py RUN_DIR", file=sys.stderr)
@@ -302,6 +332,7 @@ def main() -> int:
             raise CollectionError(
                 "pipeline environment changed between root capture and batch use"
             )
+        wftune = wftune_identity(trial, workload)
         protocol_hash_fields = (
             "controller_env_sha256", "pipeline_env_sha256",
             "sbatch_script_sha256", "validation_sha256",
@@ -575,6 +606,8 @@ def main() -> int:
                 "included_in_endpoint_walltime": False,
             },
         }
+        if wftune is not None:
+            record["wftune"] = wftune
         if recovery is not None:
             record["recovery"] = {
                 "reason": pick(recovery, "reason"),

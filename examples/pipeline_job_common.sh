@@ -328,9 +328,15 @@ TRACE_CONFIG_SHA256=$(hash_file "$WMSbench_TRACE_CONFIG")
 INPUT_MANIFEST_SHA256=$(hash_file "$WMSbench_INPUT_MANIFEST")
 PIPELINE_SOURCE_MANIFEST_SHA256=$(hash_file "$WMSbench_PIPELINE_SOURCE_MANIFEST")
 BACKEND_CONFIG_SHA256=$(hash_file "$WMSbench_BACKEND_CONFIG")
+# Record the release this node sees, so the collector can refuse a run whose
+# compute-side harness copy differs from the controller's.
+# shellcheck source=controller/wftune_version.sh
+source "$WMSbench_HARNESS_ROOT/controller/wftune_version.sh"
+wftune_read_version "$WMSbench_HARNESS_ROOT" || exit 2
 atomic_write "$WMSbench_HANDOFF_DIR/pipeline_contract.env" \
     'schema_version=1' \
     'wms=nextflow' \
+    "wftune_version=$WFTUNE_VERSION" \
     "pipeline=$WMSbench_PIPELINE" \
     "pipeline_revision=${WMSbench_PIPELINE_REVISION:-local-pinned-checkout}" \
     "nf_profile=$WMSbench_NF_PROFILE" \

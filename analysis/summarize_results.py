@@ -214,6 +214,7 @@ def main() -> int:
             args.monitor_root, through_rep=args.through_rep, venues=venues,
             backends=backends, allow_censored_hq=args.allow_censored_hq,
             allow_backend_config_drift=args.allow_backend_config_drift,
+            allow_version_drift=args.allow_version_drift,
         )
         summary = aggregate(rows, venues, args.through_rep, backends)
         ratios = paired_ratios(rows, venues, replicates, backends)

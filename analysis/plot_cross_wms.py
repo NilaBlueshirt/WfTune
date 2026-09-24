@@ -64,6 +64,11 @@ def parser() -> argparse.ArgumentParser:
     )
     result.add_argument("--out", required=True, type=Path)
     result.add_argument("--csv", type=Path)
+    result.add_argument(
+        "--allow-version-drift", action="store_true",
+        help="admit a series whose runs were recorded under different WfTune "
+             "versions; each series is still validated on its own",
+    )
     return result
 
 
@@ -81,7 +86,15 @@ def load(args: argparse.Namespace) -> list[dict]:
             through_rep=args.through_rep,
             venues=[args.venue],
             backends=args.backends,
+            allow_version_drift=args.allow_version_drift,
         )
+        versions = sorted({row["wftune_version"] for row in campaign})
+        if len(versions) > 1:
+            print(
+                f"note: series {label} admitted with mixed WfTune versions: "
+                + ", ".join(version or "unrecorded" for version in versions),
+                file=sys.stderr,
+            )
         recorded = {str(row.get("wms") or "").strip() for row in campaign}
         if len(recorded) != 1 or "" in recorded:
             raise CampaignError(f"{root}: expected exactly one recorded WMS, got {recorded}")
