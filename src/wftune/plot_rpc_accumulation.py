@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Plot how benchmark-user RPC stress accumulates over a run, for all five
 backends.
 
@@ -40,12 +39,11 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from campaign import (BACKEND_DARK, BACKEND_LABELS, BACKEND_LIGHT,
-                      CampaignError, VENUE_LABELS,
-                      add_selection_arguments,
-                      load_periodic_user_series_for_row, resolve_backends, resolve_venues,
-                      validate_campaign)
+from .campaign import (BACKEND_DARK, BACKEND_LABELS, BACKEND_LIGHT,
+                       CampaignError, VENUE_LABELS,
+                       add_selection_arguments,
+                       load_periodic_user_series_for_row, resolve_backends, resolve_venues,
+                       validate_campaign)
 
 
 METRICS = {
@@ -192,8 +190,8 @@ def render(out: Path, rows: list[dict], venues: list[str], through_rep: int,
     print(f"wrote {out} and {out.with_suffix('.csv')}")
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+def main(argv: list[str] | None = None, prog: str | None = None) -> int:
+    parser = argparse.ArgumentParser(prog=prog, description=__doc__)
     parser.add_argument("monitor_root", nargs="?", type=Path,
                         default=Path("monitor-data"))
     parser.add_argument("out", nargs="?", type=Path,
@@ -201,7 +199,7 @@ def main() -> int:
     parser.add_argument("--metric", choices=sorted(METRICS), default="count",
                         help="cumulative RPC count (default) or processing time")
     add_selection_arguments(parser)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     try:
         venues = resolve_venues(args.monitor_root, args.venue)
         backends = resolve_backends(args.backends)

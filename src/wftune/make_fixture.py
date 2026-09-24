@@ -1,6 +1,5 @@
-#!/usr/bin/env python3
 """Synthesize a WfTune monitor tree so the analysis path can be smoke-tested
-before real data exists. Usage: make_fixture.py OUT_ROOT [--reps N] [--venue V]
+before real data exists. Usage: wftune demo OUT_ROOT [--reps N] [--venue V]
 [--wftune-version [REP=]VERSION]
 """
 import argparse
@@ -10,7 +9,8 @@ import random
 import re
 from pathlib import Path
 
-VERSION_FILE = Path(__file__).resolve().parents[2] / "VERSION"
+from . import __version__
+
 # The rule controller/collect_run.py applies to a recorded version.
 WFTUNE_VERSION_RE = re.compile(
     r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)"
@@ -120,12 +120,11 @@ def write_trace(path, backend, t0, start, endpoint, rng):
 
 def replicate_versions(parser, values, reps):
     """Map each replicate to the WfTune version its runs record, or None."""
-    try:
-        default = VERSION_FILE.read_text(encoding="utf-8").rstrip("\n")
-    except OSError as error:
-        parser.error(f"cannot read {VERSION_FILE}: {error}")
+    default = __version__
     if not WFTUNE_VERSION_RE.fullmatch(default):
-        parser.error(f"{VERSION_FILE} does not hold a SemVer version")
+        parser.error(
+            f"WfTune version {default!r} is not SemVer; pass --wftune-version"
+        )
     overrides = {}
     for value in values:
         rep_text, separator, version = value.partition("=")
@@ -333,8 +332,8 @@ def build_run(root, venue, rep, backend, order, cursor, rng, wms, wftune_version
     return monitor_end + 600
 
 
-def main():
-    parser = argparse.ArgumentParser()
+def main(argv=None, prog=None):
+    parser = argparse.ArgumentParser(prog=prog)
     parser.add_argument("out_root", type=Path)
     parser.add_argument("--reps", type=int, default=1)
     parser.add_argument("--venue", action="append", default=None)
@@ -349,7 +348,7 @@ def main():
              "run from before version recording would (default: the "
              "checkout's VERSION)",
     )
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     versions = replicate_versions(parser, args.wftune_version, args.reps)
     venues = args.venue or ["reference", "shared"]
     rng = random.Random(20260805)

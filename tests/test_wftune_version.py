@@ -25,13 +25,11 @@ from pathlib import Path
 
 os.environ.setdefault("MPLBACKEND", "Agg")
 ROOT = Path(__file__).resolve().parents[1]
-for directory in ("analysis", "controller", "examples/synthetic"):
+for directory in ("src", "controller"):
     sys.path.insert(0, str(ROOT / directory))
 
-import campaign  # noqa: E402
 import collect_run  # noqa: E402
-import make_fixture  # noqa: E402
-import plot_cross_wms  # noqa: E402
+from wftune import campaign, make_fixture, plot_cross_wms  # noqa: E402
 
 VERSION = (ROOT / "VERSION").read_text(encoding="utf-8").rstrip("\n")
 OTHER = "0.0.0-test"

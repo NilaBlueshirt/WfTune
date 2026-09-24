@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """plot_energy.py — per-backend energy + power-vs-time profiles + RAPL/PDU gap.
 
 Consumes an exclusive-node energy subset:
@@ -22,15 +21,13 @@ usage: plot_energy.py ROOT --venue VENUE [--venue VENUE ...]
        plot_energy.py --calib CALIB_DIR
 """
 import argparse
-import sys
 from pathlib import Path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from campaign import (BACKEND_DARK, BACKEND_LABELS, BACKEND_ORDER,
-                      VENUE_LABELS)
+from .campaign import (BACKEND_DARK, BACKEND_LABELS, BACKEND_ORDER,
+                       VENUE_LABELS)
 
 J_PER_KWH = 3.6e6
 
@@ -184,12 +181,12 @@ def plot_one(root, venue):
     print(f"wrote fig_energy_profile_{venue}.png")
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+def main(argv=None, prog=None):
+    parser = argparse.ArgumentParser(prog=prog, description=__doc__)
     parser.add_argument("root", nargs="?", type=Path)
     parser.add_argument("--venue", action="append")
     parser.add_argument("--calib", type=Path)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if args.calib:
         report_calib(args.calib)
         return

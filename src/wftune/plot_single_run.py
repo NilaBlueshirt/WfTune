@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Validate and plot one completed run as a diagnostic, not a paper figure."""
 from __future__ import annotations
 
@@ -9,16 +8,15 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from campaign import (CampaignError, analyze_run, load_periodic_sdiag,
-                      load_periodic_user_series)
+from .campaign import (CampaignError, analyze_run, load_periodic_sdiag,
+                       load_periodic_user_series)
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+def main(argv: list[str] | None = None, prog: str | None = None) -> int:
+    parser = argparse.ArgumentParser(prog=prog, description=__doc__)
     parser.add_argument("run_dir", type=Path)
     parser.add_argument("out", type=Path)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     try:
         summary = analyze_run(args.run_dir)

@@ -236,7 +236,7 @@ if [[ -d ${WMSbench_HARNESS_ROOT:-/missing} ]]; then
             bad "harness path or direct parent is mutable/symlinked: $protected"
         fi
     done
-    for subtree in controller controller/manual monitor analysis examples config; do
+    for subtree in controller controller/manual monitor analysis examples config src; do
         path="$WMSbench_HARNESS_ROOT/$subtree"
         if [[ ! -d $path ]]; then
             bad "active harness subtree is missing: $path"

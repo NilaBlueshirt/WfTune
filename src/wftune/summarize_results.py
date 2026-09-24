@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Create the final WfTune result tables without Slurm accounting.
 
 Outputs:
@@ -24,10 +23,9 @@ from pathlib import Path
 
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from campaign import (BASELINE_BACKEND, CampaignError,
-                      add_selection_arguments, resolve_backends,
-                      resolve_venues, validate_campaign)
+from .campaign import (BASELINE_BACKEND, CampaignError,
+                       add_selection_arguments, resolve_backends,
+                       resolve_venues, validate_campaign)
 
 
 RUNS_NAME = "table_results_runs.csv"
@@ -197,13 +195,13 @@ def write_csv(path: Path, rows: list[dict]) -> None:
     temporary.replace(path)
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+def main(argv: list[str] | None = None, prog: str | None = None) -> int:
+    parser = argparse.ArgumentParser(prog=prog, description=__doc__)
     parser.add_argument("monitor_root", nargs="?", type=Path,
                         default=Path("monitor-data"))
     parser.add_argument("output_dir", nargs="?", type=Path, default=Path("."))
     add_selection_arguments(parser)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     replicates = set(range(1, args.through_rep + 1))
     out_dir = args.output_dir
     outputs: list[tuple[Path, list[dict]]] = []

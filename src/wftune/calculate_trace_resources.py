@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Calculate task resource metrics from raw Nextflow trace files.
 
 Usage:
@@ -145,8 +144,8 @@ def write_csv(rows: list[dict[str, object]], handle: TextIO) -> None:
     writer.writerows(rows)
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+def main(argv: list[str] | None = None, prog: str | None = None) -> int:
+    parser = argparse.ArgumentParser(prog=prog, description=__doc__)
     parser.add_argument(
         "inputs", nargs="+", type=Path,
         help="trace file or directory recursively containing trace.txt files",
@@ -156,7 +155,7 @@ def main() -> int:
         help="requested CPUs for every trace row (default: 1)",
     )
     parser.add_argument("-o", "--output", type=Path, help="write CSV to this path")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     if args.cpus_per_task <= 0:
         parser.error("--cpus-per-task must be positive")

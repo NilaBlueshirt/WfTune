@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Audit completed WfTune replicate blocks.
 
 Examples::
@@ -20,15 +19,14 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from campaign import (BACKEND_ORDER, PROVISIONAL_CENSOR_FILE, CampaignError,
-                      analyze_run, load_periodic_sdiag_for_row,
-                      resolve_backend_config_drift, resolve_backends,
-                      resolve_venues, validate_campaign)
+from .campaign import (BACKEND_ORDER, PROVISIONAL_CENSOR_FILE, CampaignError,
+                       analyze_run, load_periodic_sdiag_for_row,
+                       resolve_backend_config_drift, resolve_backends,
+                       resolve_venues, validate_campaign)
 
 
-def arguments():
-    parser = argparse.ArgumentParser()
+def arguments(argv=None, prog=None):
+    parser = argparse.ArgumentParser(prog=prog)
     parser.add_argument("monitor_root", type=Path)
     parser.add_argument("--through-rep", type=int, required=True)
     parser.add_argument(
@@ -63,7 +61,7 @@ def arguments():
              "including runs with no recorded version; the strict primary "
              "audit remains false",
     )
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
 def write_json(path: Path, value: dict) -> None:
@@ -124,8 +122,8 @@ def read_status_fallback(run_dir: Path) -> dict:
     }
 
 
-def main() -> int:
-    args = arguments()
+def main(argv: list[str] | None = None, prog: str | None = None) -> int:
+    args = arguments(argv, prog)
     try:
         venues = resolve_venues(args.monitor_root, args.venue)
         backends = resolve_backends(args.backends)

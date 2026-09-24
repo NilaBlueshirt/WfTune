@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Plot one Slurm cluster's context during each backend window.
 
 The bench-user RPC rate is attributable to the bench user. Background
@@ -25,10 +24,9 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from campaign import (BACKEND_DARK, CampaignError, add_selection_arguments,
-                      load_periodic_sdiag_for_row, resolve_backends,
-                      resolve_venues, validate_campaign)
+from .campaign import (BACKEND_DARK, CampaignError, add_selection_arguments,
+                       load_periodic_sdiag_for_row, resolve_backends,
+                       resolve_venues, validate_campaign)
 
 
 METRICS = [
@@ -206,14 +204,14 @@ def _render_panels(figure, axes_grid, out: Path, rows: list[dict],
     print(f"wrote {out} and {out.with_suffix('.csv')}")
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+def main(argv: list[str] | None = None, prog: str | None = None) -> int:
+    parser = argparse.ArgumentParser(prog=prog, description=__doc__)
     parser.add_argument("monitor_root", nargs="?", type=Path,
                         default=Path("monitor-data"))
     parser.add_argument("out", nargs="?", type=Path,
                         default=Path("fig_sdiag_backends.png"))
     add_selection_arguments(parser)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     try:
         venues = resolve_venues(args.monitor_root, args.venue)
         if len(venues) != 1:

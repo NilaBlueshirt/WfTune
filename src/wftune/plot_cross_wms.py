@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Compare clean-start walltime and total attributable RPC across WMS roots.
 
 Each WMS keeps an independent monitor root so its frozen pipeline/configuration
@@ -25,7 +24,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from campaign import BACKEND_LABELS, CampaignError, validate_campaign
+from .campaign import BACKEND_LABELS, CampaignError, validate_campaign
 
 
 def parse_series(value: str) -> tuple[str, Path]:
@@ -50,8 +49,8 @@ def parse_backends(value: str) -> list[str]:
     return selected
 
 
-def parser() -> argparse.ArgumentParser:
-    result = argparse.ArgumentParser(description=__doc__)
+def parser(prog: str | None = None) -> argparse.ArgumentParser:
+    result = argparse.ArgumentParser(prog=prog, description=__doc__)
     result.add_argument(
         "--series", action="append", type=parse_series, required=True,
         metavar="LABEL=ROOT",
@@ -204,8 +203,8 @@ def render(path: Path, rows: list[dict], series: list[tuple[str, Path]],
     plt.close(figure)
 
 
-def main() -> int:
-    args = parser().parse_args()
+def main(argv: list[str] | None = None, prog: str | None = None) -> int:
+    args = parser(prog).parse_args(argv)
     try:
         rows = load(args)
         render(args.out, rows, args.series, args.backends)

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """SACCT-free WfTune campaign parsing and validation.
 
 The controller-side collector writes one immutable ``run.json`` plus raw

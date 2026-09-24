@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Plot the paper's primary RPC-count frontier and how it accumulates.
 
 The upper row plots walltime against benchmark-user RPC count per 1,000 terminal
@@ -34,13 +33,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.lines import Line2D
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from campaign import (BACKEND_DARK, BACKEND_LABELS, BACKEND_LIGHT,
-                      CampaignError, VENUE_LABELS,
-                      add_selection_arguments,
-                      load_periodic_user_series_for_row, resolve_backends, resolve_venues,
-                      validate_campaign)
-from plot_rpc_accumulation import median_curve
+from .campaign import (BACKEND_DARK, BACKEND_LABELS, BACKEND_LIGHT,
+                       CampaignError, VENUE_LABELS,
+                       add_selection_arguments,
+                       load_periodic_user_series_for_row, resolve_backends, resolve_venues,
+                       validate_campaign)
+from .plot_rpc_accumulation import median_curve
 
 
 X = "walltime_h"
@@ -406,14 +404,14 @@ def render(out: Path, rows: list[dict], venues: list[str], expected_n: int,
     print(f"wrote {out}, {out.with_suffix('.csv')}, and {curve_csv}")
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+def main(argv: list[str] | None = None, prog: str | None = None) -> int:
+    parser = argparse.ArgumentParser(prog=prog, description=__doc__)
     parser.add_argument("monitor_root", nargs="?", type=Path,
                         default=Path("monitor-data"))
     parser.add_argument("out", nargs="?", type=Path,
                         default=Path("fig_walltime_rpc_frontier.png"))
     add_selection_arguments(parser)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     try:
         venues = resolve_venues(args.monitor_root, args.venue)
         backends = resolve_backends(args.backends)
