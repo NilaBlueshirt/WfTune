@@ -1,0 +1,88 @@
+name: Publish to PyPI
+
+# A v* tag builds and tests that exact version, then publishes it to TestPyPI
+# and PyPI.  Running the workflow by hand rehearses the build, the tests, and
+# the TestPyPI upload only.  Both indexes trust this workflow through Trusted
+# Publishing, so no API tokens are stored in the repository.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Check that the tag matches VERSION
+        if: github.ref_type == 'tag'
+        run: test "${GITHUB_REF_NAME#v}" = "$(cat VERSION)"
+      - name: Build the sdist and wheel
+        run: |
+          python -m pip install --upgrade build twine
+          python -m build
+          python -m twine check --strict dist/*
+      - name: Run the unit tests
+        run: |
+          python -m venv "$RUNNER_TEMP/wheel"
+          "$RUNNER_TEMP/wheel/bin/pip" install dist/*.whl
+          "$RUNNER_TEMP/wheel/bin/python" -m unittest discover -s tests
+      - name: Run the installed wheel outside the checkout
+        working-directory: ${{ runner.temp }}
+        env:
+          MPLBACKEND: Agg
+        run: |
+          wftune="$RUNNER_TEMP/wheel/bin/wftune"
+          "$wftune" --version
+          "$wftune" demo example
+          "$wftune" audit example --through-rep 1
+          "$wftune" summarize example summary --through-rep 1
+          "$wftune" plot walltime-stress example figure.png --through-rep 1
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  testpypi:
+    name: Publish to TestPyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/project/wftune/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          skip-existing: true
+
+  pypi:
+    name: Publish to PyPI
+    needs: testpypi
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/wftune/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

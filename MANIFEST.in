@@ -1,0 +1,4 @@
+include VERSION
+# The tests exercise the collection harness and checkout wrappers, which the
+# source distribution does not ship.
+prune tests

@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wftune"
+dynamic = ["version"]
+description = "Offline audit, summary, and plotting tools for WfTune workflow-deployment benchmarks on Slurm"
+readme = "docs/pypi.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "WfTune contributors" }]
+requires-python = ">=3.11"
+dependencies = [
+    "matplotlib>=3.9.4",
+    "numpy>=2.0.2",
+    "pandas>=2.2.3",
+]
+keywords = ["benchmark", "hpc", "nextflow", "scheduler", "slurm", "snakemake", "workflow"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: System Administrators",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering",
+    "Topic :: System :: Benchmark",
+    "Topic :: System :: Distributed Computing",
+]
+
+[project.urls]
+Homepage = "https://github.com/NilaBlueshirt/WfTune"
+Documentation = "https://github.com/NilaBlueshirt/WfTune/wiki"
+Source = "https://github.com/NilaBlueshirt/WfTune"
+Issues = "https://github.com/NilaBlueshirt/WfTune/issues"
+
+[project.scripts]
+wftune = "wftune.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.dynamic]
+version = { file = "VERSION" }

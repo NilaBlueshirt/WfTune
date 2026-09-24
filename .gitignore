@@ -4,6 +4,11 @@ __pycache__/
 .venv/
 venv/
 
+# Python packaging outputs.
+build/
+dist/
+*.egg-info/
+
 # Filled site configuration may contain local identities and paths.
 *.env
 
