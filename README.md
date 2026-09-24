@@ -12,6 +12,7 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License: MIT"></a>
   <a href="https://arxiv.org/abs/2608.13824"><img src="https://img.shields.io/badge/arXiv-2608.13824-b31b1b.svg?style=flat-square" alt="arXiv: 2608.13824"></a>
+  <a href="https://arxiv.org/abs/2608.13824"><img src="https://img.shields.io/badge/SC26-HPCSYSPROS-1f4e79.svg?style=flat-square" alt="Published at SC26 HPCSYSPROS"></a>
 </p>
 
 <p align="center">
@@ -33,6 +34,14 @@ Reproducible collection and evidence audits support comparisons across
 Every run also records the WfTune release that collected it, so results trace
 back to an exact version of the tool.
 
+## How it works
+
+[![WfTune trust boundary: three collection roles write immutable evidence for read-only offline analysis.](docs/images/wftune-trust-boundary.png)](docs/images/wftune-trust-boundary.svg)
+
+An administrator, the benchmark user, and an out-of-band Slurm observer each
+write separate evidence to an immutable run tree. Analysis reads that evidence
+offline, with no Slurm access, and rejects anything incomplete.
+
 ## Get started
 
 - **Try it locally:** follow the [synthetic quick start](https://github.com/NilaBlueshirt/WfTune/wiki/Getting-Started), with no cluster required.
@@ -43,7 +52,8 @@ Full setup, methodology, and usage are in the
 
 ## Research
 
-The measurement methodology behind WfTune is described in:
+The measurement methodology behind WfTune is described in a paper published at
+the SC26 HPC Systems Professionals Workshop (HPCSYSPROS):
 
 **[Balancing Workload Performance and Slurm Stress: Four Nextflow Deployment Strategies](https://arxiv.org/abs/2608.13824)**
 

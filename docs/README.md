@@ -12,7 +12,7 @@ alongside code.
 | [Home](wiki/Home.md) | Documentation entry point and guide navigation. |
 | [Getting started](wiki/Getting-Started.md) | Requirements, installation, synthetic quick start, and unit tests. |
 | [Execution paths](wiki/Execution-Paths.md) | Workflow managers and backend support. |
-| [Measurement protocol](wiki/Measurement-Protocol.md) | Metrics, collection roles, and trust-boundary diagram. |
+| [Measurement protocol](wiki/Measurement-Protocol.md) | Metrics, collection roles, and the trust boundary. |
 | [Campaign guide](wiki/Campaign-Guide.md) | Preparation, preflight, collection, version recording, data separation, and operational safety. |
 | [Analysis](wiki/Analysis.md) | Auditing, summaries, plots, cross-WMS comparisons, and version checks. |
 | [Manual Nextflow runner](wiki/Manual-Nextflow-Runner.md) | Manual collection lifecycle and troubleshooting. |

@@ -16,15 +16,13 @@ of the analysis.
 
 ## Collection and trust boundary
 
-![WfTune trust boundary: three collection roles write immutable evidence for read-only offline analysis.](https://raw.githubusercontent.com/NilaBlueshirt/WfTune/main/docs/images/wftune-trust-boundary.png)
-
-[View the editable vector diagram](https://github.com/NilaBlueshirt/WfTune/blob/main/docs/images/wftune-trust-boundary.svg).
-
 WfTune separates controlled site actions, measured workflow demand, and
 out-of-band observation. Each role writes distinct evidence to an immutable run
 tree; validation and analysis then run offline without live Slurm access. This
 keeps monitoring traffic out of the benchmark identity's per-user RPC delta and
-makes incomplete evidence a hard analysis failure.
+makes incomplete evidence a hard analysis failure. The
+[project front page](https://github.com/NilaBlueshirt/WfTune#how-it-works)
+shows these roles as a diagram.
 
 ## Evidence and validation
 

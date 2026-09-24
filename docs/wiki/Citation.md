@@ -6,6 +6,7 @@ list.
 
 **[Balancing Workload Performance and Slurm Stress: Four Nextflow Deployment Strategies](https://arxiv.org/abs/2608.13824)**
 by Nil Tianchen Mu, William Dizon, Glen Otero, and Torey Battelle (2026).
+Published at the HPC Systems Professionals Workshop (HPCSYSPROS) at SC26.
 
 [arXiv](https://arxiv.org/abs/2608.13824) ·
 [PDF](https://arxiv.org/pdf/2608.13824) ·
@@ -18,6 +19,7 @@ by Nil Tianchen Mu, William Dizon, Glen Otero, and Torey Battelle (2026).
   title         = {Balancing Workload Performance and {Slurm} Stress: Four {Nextflow} Deployment Strategies},
   author        = {Mu, Nil Tianchen and Dizon, William and Otero, Glen and Battelle, Torey},
   year          = {2026},
+  note          = {HPC Systems Professionals Workshop (HPCSYSPROS) at SC26},
   eprint        = {2608.13824},
   archivePrefix = {arXiv},
   primaryClass  = {cs.DC},
@@ -31,6 +33,7 @@ by Nil Tianchen Mu, William Dizon, Glen Otero, and Torey Battelle (2026).
 ```text
 Mu, Nil Tianchen, William Dizon, Glen Otero, and Torey Battelle. (2026).
 Balancing Workload Performance and Slurm Stress: Four Nextflow Deployment Strategies.
+HPC Systems Professionals Workshop (HPCSYSPROS) at SC26.
 arXiv:2608.13824 [cs.DC]. https://doi.org/10.48550/arXiv.2608.13824
 ```
 
@@ -42,5 +45,6 @@ repository. The paper reports the original four-backend Nextflow study;
 the [execution guide](https://github.com/NilaBlueshirt/WfTune/wiki/Execution-Paths)
 describes WfTune's current backend support.
 
-For reproducibility, also report the WfTune version or Git commit used in your
-experiments and link to the [WfTune repository](https://github.com/NilaBlueshirt/WfTune).
+For reproducibility, also report the WfTune version your runs recorded
+(`wftune.version` in each `run.json`) or the Git commit used in your
+experiments, and link to the [WfTune repository](https://github.com/NilaBlueshirt/WfTune).
