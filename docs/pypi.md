@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/NilaBlueshirt/WfTune/v0.1.0/logo.png" alt="WfTune logo" width="160">
+</p>
+
 # WfTune
 
 Offline analysis tools for [WfTune](https://github.com/NilaBlueshirt/WfTune)
