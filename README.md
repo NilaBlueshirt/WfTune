@@ -10,6 +10,7 @@
 </p>
 
 <p align="center">
+  <a href="https://pypi.org/project/wftune/"><img src="https://img.shields.io/pypi/v/wftune.svg?style=flat-square" alt="PyPI version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License: MIT"></a>
   <a href="https://arxiv.org/abs/2608.13824"><img src="https://img.shields.io/badge/arXiv-2608.13824-b31b1b.svg?style=flat-square" alt="arXiv: 2608.13824"></a>
   <a href="https://arxiv.org/abs/2608.13824"><img src="https://img.shields.io/badge/SC26-HPCSYSPROS-1f4e79.svg?style=flat-square" alt="Published at SC26 HPCSYSPROS"></a>
@@ -22,6 +23,23 @@
 </p>
 
 ---
+
+> [!TIP]
+> **Refactoring a WMS pipeline for Slurm?** The
+> [`wms-hpc-refactor`](skill/wms-hpc-refactor/) agent skill guides a coding
+> agent through refactoring, tuning, or reviewing a Nextflow, nf-core, or
+> Snakemake pipeline for a shared Slurm cluster. It applies the ten practices
+> from the USRSE'26 paper
+> [*Ten Practices for Refactoring Scientific Pipelines to nf-core DSL2 on Shared Slurm HPC*](https://doi.org/10.5281/zenodo.22921770):
+> it writes the change list before touching code, checks every change against
+> the legacy pipeline's output, and leaves the changes uncommitted for human
+> review.
+>
+> To use it with Claude Code, copy the folder into your skills directory:
+>
+> ```bash
+> cp -r skill/wms-hpc-refactor ~/.claude/skills/
+> ```
 
 ## Workflow speed is only half the picture
 
