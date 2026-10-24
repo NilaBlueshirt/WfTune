@@ -35,8 +35,8 @@ never as guarantees for another pipeline or cluster.
 
 Credit: N. T. Mu, W. Dizon, G. Otero, and T. Battelle, "Ten Practices for
 Refactoring Scientific Pipelines to nf-core DSL2 on Shared Slurm HPC",
-US Research Software Engineering Conference 2026 (USRSE'26). Public artifacts
-named in the paper: the refactored pipeline, container, and parity tooling at
+US Research Software Engineering Conference 2026 (USRSE'26),
+https://doi.org/10.5281/zenodo.22921770. Public artifacts named in the paper: the refactored pipeline, container, and parity tooling at
 https://github.com/NilaBlueshirt/make_lastz_chains (branch `nf-core-refactor`),
 the benchmark scripts at https://github.com/NilaBlueshirt/WMS-on-HPC, and
 upstream pull request #109. The measurement procedure in Step 11 follows the

@@ -79,6 +79,16 @@ the SC26 HPC Systems Professionals Workshop (HPCSYSPROS):
 [PDF](https://arxiv.org/pdf/2608.13824) ·
 [Citation](https://github.com/NilaBlueshirt/WfTune/wiki/Citation)
 
+The ten practices behind the [`wms-hpc-refactor`](skill/wms-hpc-refactor/)
+agent skill come from a companion paper at the US Research Software
+Engineering Conference 2026 (USRSE'26):
+
+**[Ten Practices for Refactoring Scientific Pipelines to nf-core DSL2 on Shared Slurm HPC](https://doi.org/10.5281/zenodo.22921770)**
+
+[Read on Zenodo](https://zenodo.org/records/22921770) ·
+[PDF](https://zenodo.org/records/22921770/files/USRSE26_paper_draft.pdf) ·
+[Citation](https://github.com/NilaBlueshirt/WfTune/wiki/Citation)
+
 ---
 
 [MIT License](LICENSE)

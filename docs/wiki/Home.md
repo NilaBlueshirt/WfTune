@@ -33,6 +33,6 @@ software; they are not benchmark results.
 ## Citation
 
 See [Citation](https://github.com/NilaBlueshirt/WfTune/wiki/Citation) for the
-research paper, copyable BibTeX and plain-text references, and project provenance.
+research papers, copyable BibTeX and plain-text references, and project provenance.
 
 [Source repository](https://github.com/NilaBlueshirt/WfTune) · [MIT license](https://github.com/NilaBlueshirt/WfTune/blob/main/LICENSE)
